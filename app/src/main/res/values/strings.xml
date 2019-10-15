@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyLibrary</string>
+    <string name="preference_file_key">user</string>
+</resources>
