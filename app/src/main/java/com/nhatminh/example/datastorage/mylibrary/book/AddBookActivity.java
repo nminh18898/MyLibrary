@@ -22,6 +22,8 @@ import com.nhatminh.example.datastorage.mylibrary.constant.Constant;
 import com.nhatminh.example.datastorage.mylibrary.database.LibraryContract;
 import com.nhatminh.example.datastorage.mylibrary.database.LibraryDatabaseHelper;
 
+import java.util.ArrayList;
+
 public class AddBookActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMPORT_PHOTO = 2;
@@ -29,6 +31,8 @@ public class AddBookActivity extends AppCompatActivity {
     EditText etThumbnail, etName, etAuthor, etContent;
     LibraryDatabaseHelper database = new LibraryDatabaseHelper(this);
     Book bookUpdated = new Book();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,22 +53,12 @@ public class AddBookActivity extends AppCompatActivity {
 
     void passData(){
         int bookId = getIntent().getExtras().getInt(LibraryContract.BookEntry.COLUMN_BOOK_ID);
-
         bookUpdated = database.getBookById(bookId);
 
         etName.setText(bookUpdated.getName());
         etAuthor.setText(bookUpdated.getAuthor());
         etContent.setText(bookUpdated.getContent());
-
-        ThumbnailPath thumbnailPath = database.getThumbnailPathById(bookUpdated.getThumbnailPathId());
-
-        if(thumbnailPath.getDatabasePath()!= null){
-            etThumbnail.setText(thumbnailPath.getDatabasePath());
-        }
-        else {
-            etThumbnail.setText(thumbnailPath.getOriginalPath());
-        }
-
+        etThumbnail.setText(bookUpdated.getThumbnailPath());
     }
 
     void addBook(){
@@ -73,9 +67,7 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor(etAuthor.getText().toString());
         book.setContent(etContent.getText().toString());
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
-
-        int thumbnailPathId = database.insertThumbnailOriginalPath(etThumbnail.getText().toString());
-        book.setThumbnailPathId(thumbnailPathId);
+        book.setThumbnailPath(etThumbnail.getText().toString());
 
         int newBookId = database.insertBook(book);
         Intent intent = new Intent();
@@ -87,16 +79,7 @@ public class AddBookActivity extends AppCompatActivity {
         bookUpdated.setName(etName.getText().toString());
         bookUpdated.setAuthor(etAuthor.getText().toString());
         bookUpdated.setContent(etContent.getText().toString());
-
-        String userThumbnailPath = etThumbnail.getText().toString();
-        ThumbnailPath thumbnailPath = database.getThumbnailPathById(bookUpdated.getThumbnailPathId());
-
-        if(!thumbnailPath.getOriginalPath().equals(userThumbnailPath) &&
-            !thumbnailPath.getDatabasePath().equals(userThumbnailPath)){
-            thumbnailPath.setOriginalPath(userThumbnailPath);
-            thumbnailPath.setDatabasePath(null);
-            database.updateThumbnailPath(thumbnailPath);
-        }
+        bookUpdated.setThumbnailPath(etThumbnail.getText().toString());
 
         database.updateBook(bookUpdated);
 
@@ -148,23 +131,103 @@ public class AddBookActivity extends AppCompatActivity {
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createTestData();
+                //createTestData10Item();
+                //createTestDataLargeImage();
+                test50Item();
             }
         });
     }
 
-    void createTestData(){
+    void createTestDataLargeImage(){
+        for(int i=0;i<100;i++){
+            Book book = new Book();
+            book.setName("Data number #" + i);
+            book.setAuthor("Napoleon Hill");
+            book.setContent("This edition of Napoleon Hill's Classic Think and Grow Rich is a reproduction of Napoleon Hill's personal copy of the first edition, the ONLY original version recommended by The Napoleon Hill Foundation, originally printed in March of 1937.");
+            book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+
+            switch (i%2){
+                case 0:
+                    book.setThumbnailPath("https://edmullen.net/test/rc.jpg");
+                    break;
+                case 1:
+                    book.setThumbnailPath("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQS_br-_cUesrTyYsI9-0lioZs4P5Cp_n_Pn6KmDZ-H_CLFd-_d");
+                    break;
+                case 2:
+                    book.setThumbnailPath( "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdebCLAkmHag4HPMTmI_FVSa1sOQb5MASnvlx9UXlIh_JVY2cVeQ");
+                    break;
+                case 3:
+                    book.setThumbnailPath("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd5R64ZZCnywEMGr6w-zpn-ESnYt-TXMhJR3Qwl801-uPAaO-I");
+                    break;
+                case 4:
+                    book.setThumbnailPath("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSldX6HOEqeqSVyfvjsMjWn_VNoA6iGPZoRe3u3Z5tok0I9Ih18hQ");
+                    break;
+
+            }
+
+            database.insertBook(book);
+
+        }
+    }
+
+    void test50Item(){
+        ArrayList<Book> testData = createTestData50Item();
+        for(int i=0;i<testData.size();i++){
+            database.insertBook(testData.get(i));
+        }
+
+    }
+
+    ArrayList<Book> createTestData50Item(){
+        ArrayList<Book> test50Item = new ArrayList<>();
+
+        for(int i=0;i<50;i++){
+            Book book = new Book();
+            book.setName(i + ". Think and Grow Rich: The Original, an Official Publication of The Napoleon Hill Foundation");
+            book.setAuthor("Napoleon Hill ");
+            book.setContent("This edition of Napoleon Hill's Classic Think and Grow Rich is a reproduction of Napoleon Hill's personal copy of the first edition, the ONLY original version recommended by The Napoleon Hill Foundation, originally printed in March of 1937.");
+            book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+
+            switch (i%3){
+                case 0:
+                    book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/61y04z8SKEL._SX349_BO1,204,203,200_.jpg");
+                    break;
+
+                case 1:
+                    book.setThumbnailPath("https://edmullen.net/test/rc.jpg");
+                    break;
+
+                case 2:
+                    book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/51jkW-GzFiL.jpg");
+                    break;
+            }
+
+            test50Item.add(book);
+        }
+        return test50Item;
+    }
+
+
+    void test10Item(){
+        ArrayList<Book> dataTesting = createTestData10Item();
+        for(int i=0;i<dataTesting.size();i++){
+            database.insertBook(dataTesting.get(i));
+        }
+    }
+
+    ArrayList<Book> createTestData10Item(){
+        ArrayList<Book> dataTesting = new ArrayList<>();
+
+
         // Book #0
         Book book = new Book();
         book.setName("Think and Grow Rich: The Original, an Official Publication of The Napoleon Hill Foundation");
         book.setAuthor("Napoleon Hill ");
         book.setContent("This edition of Napoleon Hill's Classic Think and Grow Rich is a reproduction of Napoleon Hill's personal copy of the first edition, the ONLY original version recommended by The Napoleon Hill Foundation, originally printed in March of 1937.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/61y04z8SKEL._SX349_BO1,204,203,200_.jpg");
 
-        int thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/51Yv0xlmb8L._SY346_.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #1
         book = new Book();
@@ -172,10 +235,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Timothy Ferriss ");
         book.setContent("Forget the old concept of retirement and the rest of the deferred-life plan–there is no need to wait and every reason not to, especially in unpredictable economic times. Whether your dream is escaping the rat race, experiencing high-end world travel, or earning a monthly five-figure income with zero management, The 4-Hour Workweek is the blueprint.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/51pPn2LkI8L.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/51pPn2LkI8L.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #2
         book = new Book();
@@ -183,10 +245,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Timothy Ferriss");
         book.setContent("This book contains their answers—practical and tactical advice from mentors who have found solutions. Whether you want to 10x your results, get unstuck, or reinvent yourself, someone else has traveled a similar path and taken notes.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/51jkW-GzFiL.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/51jkW-GzFiL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #3
         book = new Book();
@@ -194,10 +255,10 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Ryan Holiday");
         book.setContent("All great leaders, thinkers, artists, athletes, and visionaries share one indelible quality. It enables them to conquer their tempers. To avoid distraction and discover great insights. To achieve happiness and do the right thing. Ryan Holiday calls it stillness--to be steady while the world spins around you.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/41lasz04WVL.jpg");
+        //book.setThumbnailPath("https://edmullen.net/test/rc.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/41lasz04WVL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #4
         book = new Book();
@@ -205,10 +266,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Ryan Holiday");
         book.setContent("We give up too easily. With a simple change of attitude, what seem like insurmountable obstacles become once-in-a-lifetime opportunities. Ryan Holiday, who dropped out of college at nineteen to serve as an apprentice to bestselling 'modern Machiavelli' Robert Greene and is now a media consultant for billion-dollar brands, draws on the philosophy of the Stoics to guide you in every situation, showing that what blocks our path actually opens one that is new and better.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/517Zp0Ul6OL.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/517Zp0Ul6OL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #5
         book = new Book();
@@ -216,10 +276,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Ryan Holiday");
         book.setContent("Bestselling author and marketer Ryan Holiday calls such works and artists perennial sellers. How do they endure and thrive while most books, movies, songs, video games, and pieces of art disappear quickly after initial success? How can we create and market creative works that achieve longevity?");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/51TVamX9bsL.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/51TVamX9bsL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #6
         book = new Book();
@@ -227,10 +286,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Ray Dalio");
         book.setContent("Principles for Success distills Ray Dalio’s 600-page bestseller, Principles: Life & Work, down to an easy-to-read and entertaining format that’s acces\u00ADsible to readers of all ages. It contains the key elements of the unconven\u00ADtional principles that helped Dalio become one of the world’s most suc\u00ADcessful people—and that have now been read and shared by millions worldwide—including how to set goals, learn from mistakes, and collaborate with others to produce exceptional results. Whether you’re already a fan of the ideas in Princi\u00ADples or are discovering them for the first time, this illustrated guide will help you achieve success in having the life that you want to have.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/41mD%2Bn0RquL.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/41mD%2Bn0RquL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #7
         book = new Book();
@@ -238,10 +296,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Larry Hite ");
         book.setContent("In The Rule, legendary trader and hedge fund pioneer Larry Hite recounts his working-class upbringing in Brooklyn as a dyslexic, partially blind kid who was anything but a model student—and how he went on to found and run Mint Investment Management Company, one of the most profitable and largest quantitative hedge funds in the world.");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/41N9eyn9yYL._SX329_BO1,204,203,200_.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/41N9eyn9yYL._SX329_BO1,204,203,200_.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #8
         book = new Book();
@@ -249,10 +306,9 @@ public class AddBookActivity extends AppCompatActivity {
         book.setAuthor("Tom Basso ");
         book.setContent("Starting with purchases of mutual funds as a newspaper delivery boy at 12, through a brief chemical engineering career and a stock portfolio, then through 28 years as a professional money manager with securities, futures and currencies, and currently as an individual investor of our retirement funds, I have seen a lot of things across the world of trading investments. I’ve seen academics and money managers make the investment process mysterious and complicated, intimidating many individuals attempting to manage their own portfolio. It need not be overwhelming to get started.\n");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/41nhxrYUW1L.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/41nhxrYUW1L.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
 
         // Book #9
         book = new Book();
@@ -261,10 +317,11 @@ public class AddBookActivity extends AppCompatActivity {
         book.setContent("Can you become a millionaire on the stock market? The question of how to grow a small account undoubtedly occupies every trader’s mind. How do you manage to make a fortune out of a small amount? And preferably really fast?\n" +
                 "Just as it is possible to build a real estate empire without a dollar of equity, so it is also possible to achieve high profits on the stock market with a small amount of starting capital (USD 5000 or less).");
         book.setCategoryId(getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
+        book.setThumbnailPath("https://images-na.ssl-images-amazon.com/images/I/41BIable-VL.jpg");
 
-        thumbnailPathId = database.insertThumbnailOriginalPath("https://images-na.ssl-images-amazon.com/images/I/41BIable-VL.jpg");
-        book.setThumbnailPathId(thumbnailPathId);
-        database.insertBook(book);
+        dataTesting.add(book);
+
+        return dataTesting;
 
     }
 
@@ -319,7 +376,6 @@ public class AddBookActivity extends AppCompatActivity {
                     break;
             }
         }
-
     }
 
     @SuppressLint("ObsoleteSdkInt")

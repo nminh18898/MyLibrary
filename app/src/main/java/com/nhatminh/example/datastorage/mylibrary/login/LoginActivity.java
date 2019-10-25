@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.nhatminh.example.datastorage.mylibrary.R;
 import com.nhatminh.example.datastorage.mylibrary.category.MainActivity;
 import com.nhatminh.example.datastorage.mylibrary.constant.Constant;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,8 +42,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
     }
+
+
 
     private void authenticateUser() {
         String username = etUsername.getText().toString();

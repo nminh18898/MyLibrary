@@ -5,16 +5,18 @@
     android:layout_height="match_parent"
     tools:context=".category.MainActivity"
     android:orientation="vertical"
+    android:background="#60DDDDDD"
     android:padding="12dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Category"
-        android:textSize="20sp"
-        android:textColor="@android:color/black"
+        android:textSize="30sp"
+        android:textColor="@android:color/holo_red_dark"
         android:textStyle="bold"
         android:gravity="center"
+
         ></TextView>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -7,16 +7,16 @@ public class Book {
     String name;
     String author;
     String content;
-    int thumbnailPathId;
+    String thumbnailPath;
     int categoryId;
 
 
-    public Book(int bookId, String name, String author, String content, int thumbnailPathId, int categoryId) {
+    public Book(int bookId, String name, String author, String content, String thumbnailPath, int categoryId) {
         this.bookId = bookId;
         this.name = name;
         this.author = author;
         this.content = content;
-        this.thumbnailPathId = thumbnailPathId;
+        this.thumbnailPath = thumbnailPath;
         this.categoryId = categoryId;
     }
 
@@ -55,12 +55,12 @@ public class Book {
         this.content = content;
     }
 
-    public int getThumbnailPathId() {
-        return thumbnailPathId;
+    public String getThumbnailPath() {
+        return thumbnailPath;
     }
 
-    public void setThumbnailPathId(int thumbnailPathId) {
-        this.thumbnailPathId = thumbnailPathId;
+    public void setThumbnailPath(String thumbnailPath) {
+        this.thumbnailPath = thumbnailPath;
     }
 
     public int getCategoryId() {

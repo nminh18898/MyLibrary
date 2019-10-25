@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.nhatminh.example.datastorage.mylibrary.book.Book;
-import com.nhatminh.example.datastorage.mylibrary.book.ThumbnailPath;
 import com.nhatminh.example.datastorage.mylibrary.category.Category;
 
 import java.util.ArrayList;
@@ -43,15 +42,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
                 LibraryContract.BookEntry.COLUMN_BOOK_THUMBNAIL + " text, " +
                 LibraryContract.BookEntry.COLUMN_BOOK_CATEGORY + " text)";
 
-        String sqlCreateThumbnailPathEntry = "create table " + LibraryContract.ThumbnailPathEntry.TABLE_NAME +
-                "( " +
-                LibraryContract.ThumbnailPathEntry.COLUMN_THUMBNAIL_ID + " integer primary key autoincrement, " +
-                LibraryContract.ThumbnailPathEntry.COLUMN_ORIGINAL_PATH + " text, " +
-                LibraryContract.ThumbnailPathEntry.COLUMN_DATABASE_PATH + " text) ";
+
 
         sqLiteDatabase.execSQL(sqlCreateCategoryEntry);
         sqLiteDatabase.execSQL(sqlCreateBookEntry);
-        sqLiteDatabase.execSQL(sqlCreateThumbnailPathEntry);
     }
 
 
@@ -70,78 +64,13 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_NAME, book.getName());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_AUTHOR, book.getAuthor());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_CONTENT, book.getContent());
-        values.put(LibraryContract.BookEntry.COLUMN_BOOK_THUMBNAIL, book.getThumbnailPathId());
+        values.put(LibraryContract.BookEntry.COLUMN_BOOK_THUMBNAIL, book.getThumbnailPath());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_CATEGORY, book.getCategoryId());
 
         //insertThumbnailPath(book.getThumbnailPath());
 
         return (int) db.insert(LibraryContract.BookEntry.TABLE_NAME, null, values);
 
-    }
-
-    public int insertThumbnailOriginalPath(String originalPath){
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(LibraryContract.ThumbnailPathEntry.COLUMN_ORIGINAL_PATH, originalPath);
-
-        return (int) db.insert(LibraryContract.ThumbnailPathEntry.TABLE_NAME, LibraryContract.ThumbnailPathEntry.COLUMN_DATABASE_PATH, values);
-
-    }
-
-    public ThumbnailPath getThumbnailPathById(int thumbnailId){
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String selection = LibraryContract.ThumbnailPathEntry.COLUMN_THUMBNAIL_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(thumbnailId) };
-
-        Cursor cursor = db.query(LibraryContract.ThumbnailPathEntry.TABLE_NAME,
-                null,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null);
-
-        ThumbnailPath thumbnailPath = new ThumbnailPath();
-
-        if (cursor.moveToFirst()) {
-            int indexId = cursor.getColumnIndexOrThrow(LibraryContract.ThumbnailPathEntry.COLUMN_THUMBNAIL_ID);
-            int indexOriginalPath = cursor.getColumnIndexOrThrow(LibraryContract.ThumbnailPathEntry.COLUMN_ORIGINAL_PATH);
-            int indexDatabasePath = cursor.getColumnIndexOrThrow(LibraryContract.ThumbnailPathEntry.COLUMN_DATABASE_PATH);
-
-            thumbnailPath.setThumbnailPathId(cursor.getInt(indexId));
-            thumbnailPath.setOriginalPath(cursor.getString(indexOriginalPath));
-            thumbnailPath.setDatabasePath(cursor.getString(indexDatabasePath));
-        }
-
-        return thumbnailPath;
-    }
-
-    public int updateThumbnailPath(ThumbnailPath thumbnailPath){
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(LibraryContract.ThumbnailPathEntry.COLUMN_ORIGINAL_PATH, thumbnailPath.getOriginalPath());
-
-        if(thumbnailPath.getDatabasePath() == null){
-            values.putNull(LibraryContract.ThumbnailPathEntry.COLUMN_DATABASE_PATH);
-        }
-        else {
-            values.put(LibraryContract.ThumbnailPathEntry.COLUMN_DATABASE_PATH, thumbnailPath.getDatabasePath());
-        }
-
-        String selection = LibraryContract.ThumbnailPathEntry.COLUMN_THUMBNAIL_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(thumbnailPath.getThumbnailPathId())};
-
-        return (int) db.update(LibraryContract.ThumbnailPathEntry.TABLE_NAME, values, selection, selectionArgs);
-    }
-
-    private boolean isNetworkPath(String path){
-        if(path.contains("http") || path.contains("https")){
-            return true;
-        }
-        return false;
     }
 
 
@@ -153,7 +82,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_NAME, newBookInfo.getName());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_AUTHOR, newBookInfo.getAuthor());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_CONTENT, newBookInfo.getContent());
-        values.put(LibraryContract.BookEntry.COLUMN_BOOK_THUMBNAIL, newBookInfo.getThumbnailPathId());
+        values.put(LibraryContract.BookEntry.COLUMN_BOOK_THUMBNAIL, newBookInfo.getThumbnailPath());
         values.put(LibraryContract.BookEntry.COLUMN_BOOK_CATEGORY, newBookInfo.getCategoryId());
 
 
@@ -193,7 +122,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
                 book.setName(cursor.getString(indexName));
                 book.setAuthor(cursor.getString(indexAuthor));
                 book.setContent(cursor.getString(indexContent));
-                book.setThumbnailPathId(cursor.getInt(indexThumbnailPath));
+                book.setThumbnailPath(cursor.getString(indexThumbnailPath));
                 book.setCategoryId(cursor.getInt(indexCategoryId));
 
                 books.add(book);
@@ -233,7 +162,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             book.setName(cursor.getString(indexName));
             book.setAuthor(cursor.getString(indexAuthor));
             book.setContent(cursor.getString(indexContent));
-            book.setThumbnailPathId(cursor.getInt(indexThumbnailPath));
+            book.setThumbnailPath(cursor.getString(indexThumbnailPath));
             book.setCategoryId(cursor.getInt(indexCategoryId));
 
         }
@@ -259,16 +188,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
         return db.delete(LibraryContract.BookEntry.TABLE_NAME, selection, selectionArgs);
     }
-
-    public int deleteThumbnailPathById(int thumbnailPathId){
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String selection = LibraryContract.ThumbnailPathEntry.COLUMN_THUMBNAIL_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(thumbnailPathId) };
-
-        return db.delete(LibraryContract.ThumbnailPathEntry.TABLE_NAME, selection, selectionArgs);
-    }
-
 
 
 

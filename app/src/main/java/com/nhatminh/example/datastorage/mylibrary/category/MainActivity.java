@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userRole = getIntent().getExtras().getInt(Constant.Role.ROLE, Constant.Role.DEFAULT);
+        //userRole = getIntent().getExtras().getInt(Constant.Role.ROLE, Constant.Role.DEFAULT);
+        userRole = Constant.Role.ADMIN;
 
 
         rvCategory = findViewById(R.id.rvCategory);
@@ -76,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
         }));
 
         checkPermission();
-
-
     }
 
     private void createCategory(){

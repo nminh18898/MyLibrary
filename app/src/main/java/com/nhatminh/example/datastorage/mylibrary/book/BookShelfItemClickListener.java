@@ -34,8 +34,7 @@ public class BookShelfItemClickListener implements RecyclerView.OnItemTouchListe
             public void onLongPress(MotionEvent e) {
                 View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
 
-                if(childView != null && mListener != null)
-                {
+                if(childView != null && mListener != null) {
                     mListener.onItemLongClick(childView, recyclerView.getChildAdapterPosition(childView));
                 }
             }

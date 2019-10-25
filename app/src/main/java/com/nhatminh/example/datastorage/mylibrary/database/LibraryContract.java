@@ -24,10 +24,5 @@ public final class LibraryContract {
         public static final String COLUMN_BOOK_CATEGORY = "category";
     }
 
-    public static class ThumbnailPathEntry implements BaseColumns{
-        public static final String TABLE_NAME  = "thumbnail_path";
-        public static final String COLUMN_THUMBNAIL_ID = "_id";
-        public static final String COLUMN_ORIGINAL_PATH= "original_path";
-        public static final String COLUMN_DATABASE_PATH = "database_path";
-    }
+
 }

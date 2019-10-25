@@ -14,13 +14,14 @@
         <activity android:name=".book.AddBookActivity"></activity>
         <activity android:name=".book.BookShelf" />
         <activity android:name=".login.LoginActivity">
+        </activity>
+        <activity android:name=".category.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".category.MainActivity" />
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

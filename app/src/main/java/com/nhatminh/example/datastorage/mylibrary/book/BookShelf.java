@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,10 +45,12 @@ public class BookShelf extends AppCompatActivity {
     private static final int DELETE_BOOK_REQUEST = 810;
 
     FloatingActionButton fabInsert;
+
     RecyclerView rvBookShelf;
     BookShelfAdapter adapter;
+    LinearLayoutManager layoutManager;
+
     ArrayList<Book> bookArrayList;
-    ArrayList<ThumbnailPath> thumbnailPathArrayList;
 
     LibraryDatabaseHelper database = new LibraryDatabaseHelper(this);
 
@@ -82,19 +85,35 @@ public class BookShelf extends AppCompatActivity {
 
         bookArrayList = database.getAllBookByCategory(getIntent()
                 .getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
-        thumbnailPathArrayList = new ArrayList<>();
 
-        for(int i=0;i<bookArrayList.size();i++){
-            ThumbnailPath thumbnailPath = database.getThumbnailPathById(bookArrayList.get(i).getThumbnailPathId());
-            thumbnailPathArrayList.add(thumbnailPath);
-        }
+        layoutManager = new LinearLayoutManager(this);
 
         rvBookShelf = findViewById(R.id.rvBookShelf);
-        rvBookShelf.setLayoutManager(new LinearLayoutManager(this));
+        rvBookShelf.setLayoutManager(layoutManager);
 
-        adapter = new BookShelfAdapter(this, bookArrayList, thumbnailPathArrayList);
+        adapter = new BookShelfAdapter(this, bookArrayList);
         rvBookShelf.setAdapter(adapter);
 
+        rvBookShelf.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                switch (newState){
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        /*Log.e("ImageLoader",layoutManager.findFirstVisibleItemPosition() +" - " + layoutManager.findLastVisibleItemPosition() );
+                        adapter.triggerSkipMode(layoutManager.findFirstVisibleItemPosition(),
+                                layoutManager.findLastVisibleItemPosition());*/
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
 
 
 
@@ -149,7 +168,6 @@ public class BookShelf extends AppCompatActivity {
 
     private void deleteBookSuccessfully(){
         bookArrayList.remove(positionChosen);
-        thumbnailPathArrayList.remove(positionChosen);
 
         adapter.notifyDataSetChanged();
         positionChosen = -1;
@@ -157,20 +175,13 @@ public class BookShelf extends AppCompatActivity {
 
     private void updateBookSuccessfully(){
         Book newBook = database.getBookById(bookArrayList.get(positionChosen).getBookId());
-        ThumbnailPath newThumbnailPath = database.getThumbnailPathById(newBook.getThumbnailPathId());
-
         bookArrayList.set(positionChosen, newBook);
-        thumbnailPathArrayList.set(positionChosen, newThumbnailPath);
-
         adapter.notifyDataSetChanged();
     }
 
     private void insertBookSuccessfully(int id){
         Book newBook = database.getBookById(id);
-        ThumbnailPath newThumbnailPath = database.getThumbnailPathById(newBook.getThumbnailPathId());
-
         bookArrayList.add(newBook);
-        thumbnailPathArrayList.add(newThumbnailPath);
         adapter.notifyDataSetChanged();
     }
 
@@ -209,9 +220,8 @@ public class BookShelf extends AppCompatActivity {
             case R.id.action_delete_all:
                 database.deleteAllBookByCategory(
                         getIntent().getExtras().getInt(LibraryContract.CategoryEntry.COLUMN_CATEGORY_ID));
-                deleteBookThumbnail();
+                deleteAllThumbnail();
                 bookArrayList.clear();
-                thumbnailPathArrayList.clear();
                 adapter.notifyDataSetChanged();
                 break;
 
@@ -222,40 +232,26 @@ public class BookShelf extends AppCompatActivity {
     }
 
 
-
-    void deleteBookThumbnail(){
+    void deleteAllThumbnail(){
         for(int i=0;i<bookArrayList.size();i++){
-            ThumbnailPath thumbnailPath = database.getThumbnailPathById(bookArrayList.get(i).getThumbnailPathId());
-            deleteImage(thumbnailPath.getDatabasePath());
-            database.deleteThumbnailPathById(thumbnailPath.getThumbnailPathId());
+            ImageLoader.deleteImageInDatabase(bookArrayList.get(i).getThumbnailPath());
         }
     }
+
 
     int deleteBooKById(int bookId){
         Book book = database.getBookById(bookId);
-        ThumbnailPath thumbnailPath = database.getThumbnailPathById(book.getThumbnailPathId());
-        deleteImage(thumbnailPath.getDatabasePath());
+        ImageLoader.deleteImageInDatabase(book.getThumbnailPath());
+
         return database.deleteBookById(bookId);
     }
 
-    private void deleteImage(String imagePath)
-    {
-        File originalFile =  new File(imagePath);
-
-
-        if (!originalFile.exists()) {
-            Log.e(TAG, "Image file not exist");
-        }
-        else {
-            originalFile.delete();
-            Log.e(TAG, "Image file not deleted");
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         database.close();
+        adapter.clean();
     }
 
     @Override
@@ -278,6 +274,7 @@ public class BookShelf extends AppCompatActivity {
 
 
     /**
+     * Code use for testing
      * ===========================================================================
      */
 
